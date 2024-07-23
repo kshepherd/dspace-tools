@@ -2,12 +2,12 @@ import json5
 import sys
 from typing import Set
 
-def escape_newlines(s: str) -> str:
-    return s.replace('\n', '\\n')
+def escape_specials(s: str) -> str:
+    # So far I only really care to escape newlines and tabs but we might find more
+    return s.replace('\n', '\\n').replace('\t', '\\t')
 
 def extract_data(file_path: str) -> Set[str]:
     with open(file_path, 'r') as file:
-        # Read the file content and remove comments and blank lines
         content = '\n'.join(line.strip() for line in file if line.strip() and not line.strip().startswith('//'))
     return json5.loads(content)
 
@@ -25,11 +25,11 @@ def compare_keys(file1: str, file2: str):
 
     print(f"Keys only in {file1} (printed with existing value, as comment, for reference):\n==")
     for key in sorted(only_in_file1):
-        print(f'//"{key}": "{data1[key]}"')
+        print(f'//"{key}": "{escape_specials(data1[key])}"')
 
     print(f"\n\nKeys only in {file2} (printed with existing value, as comment, for reference):\n==")
     for key in sorted(only_in_file2):
-        print(f'//"{key}": "{data2[key]}"')
+        print(f'//"{key}": "{escape_specials(data2[key])}"')
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
